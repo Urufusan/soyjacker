@@ -1,3 +1,6 @@
+# Copyright 2024 Urufusan.
+# SPDX-License-Identifier: 	AGPL-3.0-or-later
+
 import subprocess
 import time
 from typing import Literal
