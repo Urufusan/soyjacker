@@ -17,7 +17,7 @@ MIN_HEIGHT = 400
 
 # Helper funcs
 
-def random_picker(_image_type_prefix: str):
+def random_asset_picker(_image_type_prefix: str):
     _file_list = list(filter(lambda _lambda_e: _lambda_e.startswith(_image_type_prefix), os.listdir(f"{SOYMAIN_PROJ_FOLDER}/assets")))
     _random_image_path = f"{SOYMAIN_PROJ_FOLDER}/assets/{random.choice(_file_list)}"
     return _random_image_path
@@ -49,11 +49,11 @@ def persp_transform(startpoints, endpoints, _im : Image.Image):
 
 # Actual image gen funcs
 
-def soy_phone_show(image: Image.Image):
-    _random_image_path = random_picker("phone_")
+def soy_phone_show(image: Image.Image, vertical = False):
+    _random_image_path = random_asset_picker("phone_" if vertical else "phonehz_")
     _react_image = Image.open(_random_image_path)
     _foundational_image = Image.new("RGBA", _react_image.size, (0,0,0,0))
-    _scaled_user_img = image.resize((400, _react_image.size[1]), Image.Resampling.NEAREST)
+    _scaled_user_img = image.resize((int(_react_image.size[0]*0.75), int(_react_image.size[1]*0.75)), Image.Resampling.BICUBIC)
     _usr_img_w, _usr_img_h = _scaled_user_img.size
     _foundational_image.paste(_scaled_user_img, (0, 0))
     
@@ -61,7 +61,7 @@ def soy_phone_show(image: Image.Image):
     
     _t_ep = os.path.basename(_random_image_path).split("-")[1].split(".")[0].split("_")
     _i_ep = [int(_temp_str2int) for _temp_str2int in _t_ep]
-    print(_i_ep)
+    # print(_i_ep)
     _startpoints = ((0, 0),(_usr_img_w, 0), (_usr_img_w, _usr_img_h), (0, _usr_img_h))
     _endpoints = (
         (_i_ep[0:2]),
@@ -77,7 +77,7 @@ def soy_phone_show(image: Image.Image):
     return _final_image
 
 def soy_bubble_react(image: Image.Image):
-    _random_image_path = random_picker("bubble_")
+    _random_image_path = random_asset_picker("bubble_")
     _react_image = Image.open(_random_image_path)
     _scaled_user_img = image.resize((_react_image.size[0], int((_react_image.size[0]/image.size[0]) * image.size[1])), Image.Resampling.BICUBIC)
     del image
@@ -112,7 +112,7 @@ def soy_point(image: Image.Image, aspect_ratio = "Fit"):
     soy_width, soy_height = soy1.size
     c = float(height) / float(soy_height)
     adit = 0.7
-    print(c)
+    # print(c)
     size = (int(soy_width * c * adit) if aspect_ratio == "Fit" else int(width / 2), int(height * adit))
 
     soy1 = soy1.resize(size, resample=Image.Resampling.NEAREST)
@@ -139,13 +139,13 @@ def main():
     # _buf = BytesIO()
     screenie = Image.open(BytesIO(get_screenie())) # Over pipes
     sc_ratio = screenie.size[0]/screenie.size[1]
-
+    # TODO: Cmd args for the formats?
     if sc_ratio < 0.8:
-        image = soy_phone_show(image=screenie)
+        image = soy_phone_show(image=screenie, vertical=True)
     elif sc_ratio < 1.3:
         image = soy_bubble_react(image=screenie)
     else:
-        image = soy_point(image=screenie)
+        image = random.choice((soy_point, soy_phone_show))(image=screenie)
 
     proc_temp = subprocess.Popen(["copyq", "copy", "image/png", "-"], stdin=subprocess.PIPE, bufsize=-1)
     image.save(proc_temp.stdin, format="PNG")
