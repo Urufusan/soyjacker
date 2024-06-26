@@ -8,14 +8,19 @@ from PIL import Image
 from io import BytesIO
 import os
 import random
-
+from shutil import which
 import numpy
 
 SOYMAIN_PROJ_FOLDER = os.path.dirname(__file__)
 MIN_WIDTH = 400
 MIN_HEIGHT = 400
 
+
 # Helper funcs
+def c_tool_exists(_cmd_name) -> True:
+    return which(_cmd_name) is not None
+
+SCREENSHOT_TOOL_CMDLINE = ["maim", "-s", "--format", "png", "/dev/stdout"] if c_tool_exists("maim") else ["spectacle", "-o", "/proc/self/fd/1"]
 
 def random_asset_picker(_image_type_prefix: str):
     _file_list = list(filter(lambda _lambda_e: _lambda_e.startswith(_image_type_prefix), os.listdir(f"{SOYMAIN_PROJ_FOLDER}/assets")))
@@ -23,7 +28,7 @@ def random_asset_picker(_image_type_prefix: str):
     return _random_image_path
 
 def get_screenie():
-    _temp_proc = subprocess.check_output(["maim", "-s", "--format", "png", "/dev/stdout"])
+    _temp_proc = subprocess.check_output(SCREENSHOT_TOOL_CMDLINE)
     return _temp_proc
 
 def find_coeffs(start_points, end_points):
