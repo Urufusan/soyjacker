@@ -28,7 +28,7 @@ def random_asset_picker(_image_type_prefix: str):
     return _random_image_path
 
 def get_screenie():
-    _temp_proc = subprocess.check_output(SCREENSHOT_TOOL_CMDLINE)
+    _temp_proc = subprocess.check_output(SCREENSHOT_TOOL_CMDLINE, shell=("spectacle" in SCREENSHOT_TOOL_CMDLINE))
     return _temp_proc
 
 def find_coeffs(start_points, end_points):
