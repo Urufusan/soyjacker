@@ -17,7 +17,7 @@ MIN_HEIGHT = 400
 
 
 # Helper funcs
-def c_tool_exists(_cmd_name) -> True:
+def c_tool_exists(_cmd_name):
     return which(_cmd_name) is not None
 
 SCREENSHOT_TOOL_CMDLINE = ["maim", "-s", "--format", "png", "/dev/stdout"] if c_tool_exists("maim") else ["spectacle", "--background", "--nonotify", "-o", "/proc/self/fd/1"]
