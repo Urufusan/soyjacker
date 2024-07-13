@@ -20,6 +20,13 @@ MIN_HEIGHT = 400
 def c_tool_exists(_cmd_name):
     return which(_cmd_name) is not None
 
+# TODO: Implement proper wayland support
+"""
+[black image on gnome wayland · Issue #67 · naelstrof/maim](https://github.com/naelstrof/maim/issues/67#issuecomment-974622572 "black image on gnome wayland · Issue #67 · naelstrof/maim")
+[grim: Grab images from a Wayland compositor](https://sr.ht/~emersion/grim/ "grim: Grab images from a Wayland compositor")
+[emersion/slurp: Select a region in a Wayland compositor](https://github.com/emersion/slurp "emersion/slurp: Select a region in a Wayland compositor")
+"""
+
 SCREENSHOT_TOOL_CMDLINE = ["maim", "-s", "--format", "png", "/dev/stdout"] if c_tool_exists("maim") else ["spectacle", "--background", "--nonotify", "-o", "/proc/self/fd/1"]
 
 def random_asset_picker(_image_type_prefix: str):
