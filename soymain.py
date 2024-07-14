@@ -179,6 +179,8 @@ def soy_auto_ratio(image: Image.Image):
     else:
         _soyed_image = random.choice((soy_point, unwrapped_phone_show))(image=image)
 
+    del image
+
     return _soyed_image
 
 
@@ -235,4 +237,4 @@ if __name__ == "__main__":
 
     proc_temp = subprocess.Popen(["copyq", "copy", "image/png", "-"], stdin=subprocess.PIPE, bufsize=-1)
     final_image.save(proc_temp.stdin, format="PNG")
-    del final_image, proc_temp
+    del final_image, screenie
