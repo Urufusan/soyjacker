@@ -237,4 +237,5 @@ if __name__ == "__main__":
 
     proc_temp = subprocess.Popen(["copyq", "copy", "image/png", "-"], stdin=subprocess.PIPE, bufsize=-1)
     final_image.save(proc_temp.stdin, format="PNG")
+    proc_temp.stdin.close()
     del final_image, screenie
