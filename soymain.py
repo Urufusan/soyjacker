@@ -85,7 +85,7 @@ def unwrapped_phone_show(image: Image.Image, vertical=False):
 
     _t_ep = os.path.basename(_random_image_path).split("-")[1].split(".")[0].split("_")
     _i_ep = [int(_temp_str2int) for _temp_str2int in _t_ep]
-    # print(_i_ep)
+
     _startpoints = ((0, 0), (_usr_img_w, 0), (_usr_img_w, _usr_img_h), (0, _usr_img_h))
     _endpoints = ((_i_ep[0:2]), (_i_ep[2:4]), (_i_ep[4:6]), (_i_ep[6:8]))
     _final_image = persp_transform(_startpoints, _endpoints, _foundational_image)
@@ -143,7 +143,7 @@ def soy_point(image: Image.Image, aspect_ratio="Fit"):
     _soy_width, _soy_height = soy1.size
     c = float(height) / float(_soy_height)
     adit = 0.7
-    # print(c)
+
     size = (int(_soy_width * c * adit) if aspect_ratio == "Fit" else int(width / 2), int(height * adit))
 
     soy1 = soy1.resize(size, resample=Image.Resampling.NEAREST)
