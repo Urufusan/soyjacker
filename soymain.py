@@ -162,9 +162,6 @@ def soy_point(image: Image.Image, aspect_ratio="Fit"):
 
     return image
 
-    # _buf.seek(0)
-    # await save_and_send(ctx, frames, image)
-
 
 def soy_auto_ratio(image: Image.Image):
     """Automatically choose template based on the aspect ratio of the screenshot"""
