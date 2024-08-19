@@ -10,8 +10,6 @@ from io import BytesIO
 from shutil import which
 from typing import Callable
 
-# import time
-# from typing import Literal
 from PIL import Image
 
 SOYMAIN_PROJ_FOLDER = os.path.dirname(__file__)
@@ -20,6 +18,7 @@ MIN_HEIGHT = 400
 
 
 # Helper funcs
+
 def c_tool_exists(_cmd_name):
     return which(_cmd_name) is not None
 
