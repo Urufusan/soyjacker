@@ -72,8 +72,8 @@ def persp_transform(startpoints, endpoints, _im: Image.Image):
 # Actual image gen funcs
 
 
-def unwrapped_phone_show(image: Image.Image, vertical=False):
-    _random_image_path = random_asset_picker("phone_" if vertical else "phonehz_")
+def unwrapped_phone_show(image: Image.Image, vertical: bool = False, asset_name_prefix: str = ""):
+    _random_image_path = random_asset_picker(("phone_" if vertical else "phonehz_") if not asset_name_prefix else asset_name_prefix)
     _react_image = Image.open(_random_image_path)
     _foundational_image = Image.new("RGBA", _react_image.size, (0, 0, 0, 0))
     _scaled_user_img = image.resize((int(_react_image.size[0] * 0.75), int(_react_image.size[1] * 0.75)), Image.Resampling.BICUBIC)
@@ -104,6 +104,9 @@ def soy_show_phone_vertical(image: Image.Image) -> Image.Image:
     """Random VERTICAL phone-showing soyjak (image is pasted inside the phone)"""
     return unwrapped_phone_show(image=image, vertical=True)
 
+def soy_shitty_setup(image: Image.Image) -> Image.Image:
+    """Random shitty PC setup template (image is pasted inside the screen)"""
+    return unwrapped_phone_show(image=image, asset_name_prefix="cursedsetup_")
 
 def soy_bubble_react(image: Image.Image):
     """Random bubble reaction soyjak (image is pasted above the speechbubble)"""
@@ -119,7 +122,7 @@ def soy_bubble_react(image: Image.Image):
     return _foundational_image
 
 
-def soy_point(image: Image.Image, aspect_ratio="Fit"):
+def soy_point(image: Image.Image, aspect_ratio:str = "Fit"):
     """Two pointing soyjaks (pasted over the background image)"""
     width, height = image.size
     _bg_filler_params = {}
@@ -183,10 +186,12 @@ def soy_auto_ratio(image: Image.Image):
 def zenity_picker() -> Callable:
     _pre_entry_globals = globals()
 
-    # NOTE: This is very hacky, but it makes auto_ratio appear at the top
 
     _filter_obj = list(filter(lambda _l_e: _l_e.startswith("soy"), _pre_entry_globals.keys()))
+    
+    # NOTE: This is very hacky, but it makes auto_ratio appear at the top
     _filter_obj.insert(0, _filter_obj.pop(-1))
+    
     _soy_f_map = list(enumerate(_filter_obj))
 
     _zenity_vals = [("FALSE" if _cnt_i else "TRUE", str(_cnt_i), _pre_entry_globals.get(_tempthing).__doc__) for _cnt_i, _tempthing in _soy_f_map]
@@ -207,7 +212,7 @@ def zenity_picker() -> Callable:
             "--hide-header",
             "--print-column=2",
             "--width=550",
-            "--height=200",
+            "--height=250",
             *list(itertools.chain.from_iterable(_zenity_vals)),
         ]
     )
