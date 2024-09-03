@@ -16,6 +16,8 @@ SOYMAIN_PROJ_FOLDER = os.path.dirname(__file__)
 MIN_WIDTH = 400
 MIN_HEIGHT = 400
 
+# My own locally compiled yad binary
+YAD_LOCAL_PATH = os.path.expanduser("~/Scripts/yad-14.1/out/yad")
 
 # Helper funcs
 
@@ -196,28 +198,41 @@ def zenity_picker() -> Callable:
 
     _zenity_vals = [("FALSE" if _cnt_i else "TRUE", str(_cnt_i), _pre_entry_globals.get(_tempthing).__doc__) for _cnt_i, _tempthing in _soy_f_map]
     # print(_zenity_vals)
-    _selected_value = subprocess.check_output(
-        [
-            "zenity",
+    
+    # Check for yad and use that instead of zenity
+    _yad_bin = "zenity"
+    if c_tool_exists("yad"):
+        _yad_bin = "yad"
+    elif os.path.isfile(YAD_LOCAL_PATH):
+        _yad_bin = YAD_LOCAL_PATH
+    
+    _yad_bin = os.environ.get("SOY_MENU_PICKER_BIN", _yad_bin)
+    if _yad_bin == "zenity":
+        _yad_bin = None
+    
+    _subprocess_CMD = [
+            "zenity" if not _yad_bin else _yad_bin,
             "--list",
             "--radiolist",
             "--title=Soyshot mode selection",
-            "--print-column=ALL",
+            # "--print-column=0",
             "--column=a",
             "--column=b",
             "--column=Template format",
             "--hide-column=2",
             "--text",
             "Select a template you'd like to use:",
-            "--hide-header",
+            "--hide-header" if not _yad_bin else "--no-headers",
             "--print-column=2",
             "--width=550",
             "--height=250",
             *list(itertools.chain.from_iterable(_zenity_vals)),
-        ]
-    )
+    ]
+    if _yad_bin: _subprocess_CMD.insert(4, "--buttons-layout=center")
+    
+    _selected_value = subprocess.check_output(_subprocess_CMD)
 
-    return _pre_entry_globals.get(dict(_soy_f_map)[int(_selected_value)])
+    return _pre_entry_globals.get(dict(_soy_f_map)[int(_selected_value.decode().strip().strip("|"))])
 
 
 if __name__ == "__main__":
