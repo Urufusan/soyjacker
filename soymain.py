@@ -35,7 +35,7 @@ def c_tool_exists(_cmd_name):
 SCREENSHOT_TOOL_CMDLINE = ["maim", "-s", "--format", "png", "/dev/stdout"] if c_tool_exists("maim") else ["spectacle", "--background", "--nonotify", "-o", "/proc/self/fd/1"]
 
 
-def random_asset_picker(_image_type_prefix: str):
+def random_asset_picker(_image_type_prefix: str) -> str:
     _file_list = list(filter(lambda _lambda_e: _lambda_e.startswith(_image_type_prefix), os.listdir(f"{SOYMAIN_PROJ_FOLDER}/assets")))
     _random_image_path = f"{SOYMAIN_PROJ_FOLDER}/assets/{random.choice(_file_list)}"
     return _random_image_path
@@ -62,7 +62,7 @@ def find_coeffs(start_points, end_points):
     return numpy.array(res).reshape(8)
 
 
-def persp_transform(startpoints, endpoints, _im: Image.Image):
+def persp_transform(startpoints, endpoints, _im: Image.Image) -> Image.Image:
     """Perform a perspective transformation using the og and end points"""
     width, height = _im.size
     coeffs = find_coeffs(endpoints, startpoints)
@@ -74,7 +74,7 @@ def persp_transform(startpoints, endpoints, _im: Image.Image):
 # Actual image gen funcs
 
 
-def unwrapped_phone_show(image: Image.Image, vertical: bool = False, asset_name_prefix: str = ""):
+def unwrapped_phone_show(image: Image.Image, vertical: bool = False, asset_name_prefix: str = "") -> Image.Image:
     _random_image_path = random_asset_picker(("phone_" if vertical else "phonehz_") if not asset_name_prefix else asset_name_prefix)
     _react_image = Image.open(_random_image_path)
     _foundational_image = Image.new("RGBA", _react_image.size, (0, 0, 0, 0))
@@ -82,7 +82,7 @@ def unwrapped_phone_show(image: Image.Image, vertical: bool = False, asset_name_
     _usr_img_w, _usr_img_h = _scaled_user_img.size
     _foundational_image.paste(_scaled_user_img, (0, 0))
 
-    del _scaled_user_img, image
+    del _scaled_user_img
 
     _t_ep = os.path.basename(_random_image_path).split("-")[1].split(".")[0].split("_")
     _i_ep = [int(_temp_str2int) for _temp_str2int in _t_ep]
@@ -110,12 +110,12 @@ def soy_shitty_setup(image: Image.Image) -> Image.Image:
     """Random shitty PC setup template (image is pasted inside the screen)"""
     return unwrapped_phone_show(image=image, asset_name_prefix="cursedsetup_")
 
-def soy_bubble_react(image: Image.Image):
+def soy_bubble_react(image: Image.Image) -> Image.Image:
     """Random bubble reaction soyjak (image is pasted above the speechbubble)"""
     _random_image_path = random_asset_picker("bubble_")
     _react_image = Image.open(_random_image_path)
     _scaled_user_img = image.resize((_react_image.size[0], int((_react_image.size[0] / image.size[0]) * image.size[1])), Image.Resampling.BICUBIC)
-    del image
+    # del image
     _foundational_image = Image.new("RGBA", (_react_image.size[0], _react_image.size[1] + _scaled_user_img.size[1]), (0, 0, 0, 255))
     _foundational_image.paste(_scaled_user_img, (0, 0))
     _foundational_image.paste(_react_image, (0, _scaled_user_img.size[1]))
@@ -124,7 +124,7 @@ def soy_bubble_react(image: Image.Image):
     return _foundational_image
 
 
-def soy_point(image: Image.Image, aspect_ratio:str = "Fit"):
+def soy_point(image: Image.Image, aspect_ratio:str = "Fit") -> Image.Image:
     """Two pointing soyjaks (pasted over the background image)"""
     width, height = image.size
     _bg_filler_params = {}
@@ -168,7 +168,7 @@ def soy_point(image: Image.Image, aspect_ratio:str = "Fit"):
     return image
 
 
-def soy_auto_ratio(image: Image.Image):
+def soy_auto_ratio(image: Image.Image) -> Image.Image:
     """Automatically choose template based on the aspect ratio of the screenshot"""
 
     sc_ratio = image.size[0] / image.size[1]
@@ -180,7 +180,7 @@ def soy_auto_ratio(image: Image.Image):
     else:
         _soyed_image = random.choice((soy_point, unwrapped_phone_show))(image=image)
 
-    del image
+    # del image
 
     return _soyed_image
 
