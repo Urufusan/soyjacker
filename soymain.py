@@ -6,15 +6,17 @@ import os
 import random
 import subprocess
 import sys
+import time
 from io import BytesIO
 from shutil import which
 from typing import Callable
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 SOYMAIN_PROJ_FOLDER = os.path.dirname(__file__)
 MIN_WIDTH = 400
 MIN_HEIGHT = 400
+random.seed(int(time.time()) // int.from_bytes(os.urandom(1), "big", signed=False))
 
 # My own locally compiled yad binary
 YAD_LOCAL_PATH = os.path.expanduser("~/Scripts/yad-14.1/out/yad")
@@ -24,7 +26,6 @@ YAD_LOCAL_PATH = os.path.expanduser("~/Scripts/yad-14.1/out/yad")
 def c_tool_exists(_cmd_name):
     return which(_cmd_name) is not None
 
-
 # TODO: Implement proper wayland support
 """
 [black image on gnome wayland · Issue #67 · naelstrof/maim](https://github.com/naelstrof/maim/issues/67#issuecomment-974622572 "black image on gnome wayland · Issue #67 · naelstrof/maim")
@@ -33,7 +34,6 @@ def c_tool_exists(_cmd_name):
 """
 
 SCREENSHOT_TOOL_CMDLINE = ["maim", "-s", "--format", "png", "/dev/stdout"] if c_tool_exists("maim") else ["spectacle", "--background", "--nonotify", "-o", "/proc/self/fd/1"]
-
 
 def random_asset_picker(_image_type_prefix: str) -> str:
     _file_list = list(filter(lambda _lambda_e: _lambda_e.startswith(_image_type_prefix), os.listdir(f"{SOYMAIN_PROJ_FOLDER}/assets")))
@@ -55,10 +55,10 @@ def find_coeffs(start_points, end_points):
         _matrix.append([p1[0], p1[1], 1, 0, 0, 0, -p2[0] * p1[0], -p2[0] * p1[1]])
         _matrix.append([0, 0, 0, p1[0], p1[1], 1, -p2[1] * p1[0], -p2[1] * p1[1]])
 
-    A = numpy.matrix(_matrix, dtype=float)
-    B = numpy.array(end_points).reshape(8)
+    _m_a = numpy.matrix(_matrix, dtype=float)
+    _m_b = numpy.array(end_points).reshape(8)
 
-    res = numpy.dot(numpy.linalg.inv(A.T * A) * A.T, B)
+    res = numpy.dot(numpy.linalg.inv(_m_a.T * _m_a) * _m_a.T, _m_b)
     return numpy.array(res).reshape(8)
 
 
@@ -73,6 +73,23 @@ def persp_transform(startpoints, endpoints, _im: Image.Image) -> Image.Image:
 
 # Actual image gen funcs
 
+def unwrapped_2d_paste(image: Image.Image, asset_name_prefix: str = "") -> Image.Image:
+    _random_image_path = random_asset_picker("ihate_" if not asset_name_prefix else asset_name_prefix)
+    _react_image = Image.open(_random_image_path)
+    
+    _t_ep = os.path.basename(_random_image_path).split("-")[1].split(".")[0].split("_")
+    _i_ep = [int(_temp_str2int) for _temp_str2int in _t_ep]
+    
+    _container_size = (_i_ep[2] - _i_ep[0], _i_ep[3] - _i_ep[1])
+    _container_image = ImageOps.contain(image, _container_size, Image.Resampling.LANCZOS)
+
+    _react_image.paste(_container_image, 
+                       (_i_ep[0] + ((_container_size[0] - _container_image.size[0])//2),
+                        _i_ep[1] + ((_container_size[1] - _container_image.size[1])//2)))
+    
+    del _container_image
+    
+    return _react_image
 
 def unwrapped_phone_show(image: Image.Image, vertical: bool = False, asset_name_prefix: str = "") -> Image.Image:
     _random_image_path = random_asset_picker(("phone_" if vertical else "phonehz_") if not asset_name_prefix else asset_name_prefix)
@@ -101,7 +118,6 @@ def soy_show_phone_horizontal(image: Image.Image) -> Image.Image:
     """Random HORIZONTAL phone-showing soyjak (image is pasted inside the phone)"""
     return unwrapped_phone_show(image=image, vertical=False)
 
-
 def soy_show_phone_vertical(image: Image.Image) -> Image.Image:
     """Random VERTICAL phone-showing soyjak (image is pasted inside the phone)"""
     return unwrapped_phone_show(image=image, vertical=True)
@@ -123,6 +139,9 @@ def soy_bubble_react(image: Image.Image) -> Image.Image:
 
     return _foundational_image
 
+def soy_hate_shirt(image: Image.Image) -> Image.Image:
+    """Random "I HATE..." shirt soyjak (image is pasted inside the shirt)"""
+    return unwrapped_2d_paste(image)
 
 def soy_point(image: Image.Image, aspect_ratio:str = "Fit") -> Image.Image:
     """Two pointing soyjaks (pasted over the background image)"""
